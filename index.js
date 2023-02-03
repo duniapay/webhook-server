@@ -1,5 +1,4 @@
 const axios = require('axios')
-const { createHmac } = import('crypto');
 const RedisSMQ = require("rsmq");
 
 const path = require('path')
@@ -33,22 +32,36 @@ const REDIS_HOST =
   
   
 async function listenFromQueue(queueName) {
-  rsmq.receiveMessage({ qname: queueName }, async function (err, resp) {
+  rsmq.receiveMessage({ qname: queueName }, async (err, resp) => {
     if (err) {
-      console.error(err)
-      return
+       //console.error(err);
+       return;
     }
     if (resp.id) {
-      console.log("Message received.", resp)
-      await sendEvent(resp.message)
+       console.log("Hey I got the message you sent me!");
+       // do lots of processing here
+       const results = await sendEvent(resp.message)
+       console.log(results)
+       // when we are done we can delete the message from the queue
+       if(results === true ){
+        rsmq.deleteMessage({ qname: queueName, id: resp.id }, (err) => {
+          if (err) {
+            // console.error(err);
+             return;
+          }
+          console.log("deleted message with id", resp.id);
+       });
+       }
     } else {
-      console.log("No messages for me...")
+       console.log("no message in queue");
     }
-  });
+ });
+ 
 }
 
   async function sendEvent(e) {
         const providerId = 'dunia-payment'
+        const secret = 'heu'
     const baseUrl =
       'https://liquidity-dot-celo-mobile-alfajores.appspot.com/fiatconnect/webhook/' +
       providerId
@@ -57,13 +70,14 @@ async function listenFromQueue(queueName) {
      * Your API call to webhookUrl with
      * your defined body about status of event
      */
-    const hmac = createHmac('sha1', secret)
+    const hmac = ''
 
-    const webhookDigest = hmac.update(JSON.stringify(e)).digest('hex')
+    const webhookDigest = JSON.stringify(e)
     const t = `t=` + Date.now()
     const s = `v1=` + webhookDigest
 
-    await axios.post(
+   try {
+    const resp = await axios.post(
       baseUrl,
       { body: JSON.stringify(e) },
       {
@@ -72,7 +86,12 @@ async function listenFromQueue(queueName) {
           'fiatconnect-signature': t + ',' + s,
         },
       },
-    )
+    ) 
+    return true
+   } catch (error) {
+    // console.error(error)
+    return false
+   }
   }
 
 
