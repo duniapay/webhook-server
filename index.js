@@ -38,7 +38,7 @@ async function listenFromQueue(queueName) {
        return;
     }
     if (resp.id) {
-       console.log("Hey I got the message you sent me!");
+       console.log(`Event received ${resp.message}`);
        // do lots of processing here
        const results = await sendEvent(resp.message)
        console.log(results)
