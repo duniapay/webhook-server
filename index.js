@@ -93,7 +93,7 @@ const sendWebhookEvent = async (
   };
   try {
     const response = await axios.post(WEBHOOK_URL, body, { headers });
-    if (response.status === 200) {
+    if (response?.status === 200) {
       console.log("Webhook event sent successfully");
       return;
     }
