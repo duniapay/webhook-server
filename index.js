@@ -1,6 +1,6 @@
 const axios = require("axios");
 const RedisSMQ = require("rsmq");
-
+const crypto = require("crypto");
 const path = require("path");
 const PORT = process.env.PORT || 5000;
 const FROM_BEGINNING = process.env.NODE_ENV !== "production" ? true : false;
