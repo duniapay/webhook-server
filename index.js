@@ -98,12 +98,11 @@ const sendWebhookEvent = async (
       return;
     }
   } catch (err) {
-    console.error("Failed to send webhook event:", err);
     return err;
   }
 };
 main().catch((err) => {
   // eslint-disable-next-line no-console
-  console.error(err);
+  // console.error(err);
   process.exit(1);
 });
