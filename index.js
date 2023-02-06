@@ -53,7 +53,7 @@ async function listenFromQueue(queueName) {
         resp.message.payload
       );
       // when we are done we can delete the message from the queue
-      if (results?.status === 200) {
+      if (results?.response.status === 200) {
         rsmq.deleteMessage({ qname: queueName, id: resp.id }, (err) => {
           if (err) {
             return;
@@ -99,6 +99,7 @@ const sendWebhookEvent = async (
     }
   } catch (err) {
     console.error("Failed to send webhook event:", err);
+    return err;
   }
 };
 main().catch((err) => {
