@@ -43,25 +43,25 @@ async function listenFromQueue(queueName) {
       return;
     }
     if (resp.id) {
-      console.log(`eventType received ${resp.message}`);
+      console.log(`eventType received ${resp}`);
 
-      // do lots of processing here
-      const results = await sendWebhookEvent(
-        resp.message.eventType,
-        resp.message.provider,
-        resp.message.eventId,
-        resp.message.address,
-        resp.message.payload
-      );
+      // // do lots of processing here
+      // const results = await sendWebhookEvent(
+      //   resp.message.eventType,
+      //   resp.message.provider,
+      //   resp.message.eventId,
+      //   resp.message.address,
+      //   resp.message.payload
+      // );
       // when we are done we can delete the message from the queue
-      if (results?.response.status === 200) {
+      // if (results?.response.status === 200) {
         rsmq.deleteMessage({ qname: queueName, id: resp.id }, (err) => {
           if (err) {
             return;
           }
           console.log("deleted message with id", resp.id);
         });
-      }
+     // }
     } else {
       console.log("no message in queue");
     }
@@ -93,7 +93,7 @@ const sendWebhookEvent = async (
     payload,
   };
   try {
-    console.log(headers)
+    console.log(headers);
     const response = await axios.post(WEBHOOK_URL, body, { headers });
     if (response?.status === 200) {
       console.log("Webhook event sent successfully");
