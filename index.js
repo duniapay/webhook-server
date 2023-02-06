@@ -43,7 +43,12 @@ async function listenFromQueue(queueName) {
       return;
     }
     if (resp.id) {
-      console.log(`Event received `);
+      console.log(`eventType received ${resp.message.eventType}`);
+      console.log(`provider received ${resp.message.provider}`);
+      console.log(`eventId received ${resp.message.eventId}`);
+      console.log(`address received ${resp.message.address}`);
+      console.log(`payload received ${resp.message.payload}`);
+
       // do lots of processing here
       const results = await sendWebhookEvent(
         resp.message.eventType,
@@ -92,7 +97,6 @@ const sendWebhookEvent = async (
     payload,
   };
   try {
-    console.log(body)
     console.log(headers)
     const response = await axios.post(WEBHOOK_URL, body, { headers });
     if (response?.status === 200) {
