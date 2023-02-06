@@ -16,6 +16,10 @@ const REDIS_PORT = raw_url.port;
 const REDIS_PASSWORD = raw_url.password;
 const NAMESPACE = "rsmq";
 
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+const WEBHOOK_URL =
+  "https://liquidity-dot-celo-mobile-alfajores.appspot.com/fiatconnect/webhook/";
+
 const rsmq = new RedisSMQ({
   host: REDIS_HOSTNAME,
   port: REDIS_PORT,
@@ -41,7 +45,13 @@ async function listenFromQueue(queueName) {
     if (resp.id) {
       console.log(`Event received ${resp.message}`);
       // do lots of processing here
-      const results = await sendEvent(resp.message);
+      const results = await sendWebhookEvent(
+        resp.message.eventType,
+        resp.message.provider,
+        resp.message.eventId,
+        resp.message.address,
+        resp.message.payload
+      );
       console.log(results);
       // when we are done we can delete the message from the queue
       if (results === true) {
@@ -58,41 +68,40 @@ async function listenFromQueue(queueName) {
   });
 }
 
-async function sendEvent(e) {
-  const providerId = "dunia-payment";
-  const secret = "heu";
-  const baseUrl =
-    "https://liquidity-dot-celo-mobile-alfajores.appspot.com/fiatconnect/webhook/" +
-    providerId;
-
-  /**
-   * Your API call to webhookUrl with
-   * your defined body about status of event
-   */
-  const hmac = "";
-
-  const webhookDigest = JSON.stringify(e);
-  const t = `t=` + Date.now();
-  const s = `v1=` + webhookDigest;
-
+const sendWebhookEvent = async (
+  eventType,
+  provider,
+  eventId,
+  address,
+  payload
+) => {
+  const timestamp = Math.floor(Date.now() / 1000);
+  const message = `${timestamp}.${JSON.stringify(payload)}`;
+  const signature = crypto
+    .createHmac("sha256", WEBHOOK_SECRET)
+    .update(message)
+    .digest("hex");
+  const headers = {
+    "FiatConnect-Signature": `t=${timestamp},v1=${signature}`,
+  };
+  const body = {
+    eventType,
+    provider,
+    eventId,
+    timestamp,
+    address,
+    payload,
+  };
   try {
-    const resp = await axios.post(
-      baseUrl,
-      { body: JSON.stringify(e) },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "fiatconnect-signature": t + "," + s,
-        },
-      }
-    );
-    return true;
-  } catch (error) {
-    // console.error(error)
-    return false;
+    const response = await axios.post(WEBHOOK_URL, body, { headers });
+    if (response.status === 200) {
+      console.log("Webhook event sent successfully");
+      return;
+    }
+  } catch (err) {
+    console.error("Failed to send webhook event:", err);
   }
-}
-
+};
 main().catch((err) => {
   // eslint-disable-next-line no-console
   console.error(err);
