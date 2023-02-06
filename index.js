@@ -43,7 +43,7 @@ async function listenFromQueue(queueName) {
       return;
     }
     if (resp.id) {
-      console.log(`eventType received ${resp}`);
+      console.log(`eventType received ${resp.message}`);
 
       // do lots of processing here
       const results = await sendWebhookEvent(
