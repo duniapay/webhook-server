@@ -13,7 +13,8 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "node test.js"
+    "test": "node test.js",
+    "format": "prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -27,5 +28,8 @@
   "bugs": {
     "url": "https://github.com/jomaoppa/node-js-template/issues"
   },
-  "homepage": "https://github.com/jomaoppa/node-js-template#readme"
+  "homepage": "https://github.com/jomaoppa/node-js-template#readme",
+  "devDependencies": {
+    "prettier": "2.8.3"
+  }
 }
