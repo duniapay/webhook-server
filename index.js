@@ -52,9 +52,8 @@ async function listenFromQueue(queueName) {
         resp.message.address,
         resp.message.payload
       );
-      console.log(results);
       // when we are done we can delete the message from the queue
-      if (results === true) {
+      if (results.status === 200) {
         rsmq.deleteMessage({ qname: queueName, id: resp.id }, (err) => {
           if (err) {
             return;
