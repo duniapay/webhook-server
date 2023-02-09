@@ -4,8 +4,8 @@ var app = express()
 app.set('port', (process.env.PORT || 8080))
 
 app.get('/dunia-payment', function(request, response) {
-  console.log(request.body)
-  response.send('Hello World!')
+  console.log('url', request.body)
+  response.send(200)
 })
 
 app.listen(app.get('port'), function() {
