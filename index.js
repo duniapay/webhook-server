@@ -3,9 +3,8 @@ var app = express()
 
 app.set('port', (process.env.PORT || 8080))
 
-app.get('/dunia-payment', function(request, response) {
+app.get('/dunia-payment', function(request, _response) {
   console.log('url', request.body)
-  response.send(200)
 })
 
 app.listen(app.get('port'), function() {
