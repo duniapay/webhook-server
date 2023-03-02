@@ -1,27 +1,29 @@
-let throng = require('throng');
+let throng = require("throng");
 let Queue = require("bull");
 
 // Connect to a local redis instance locally, and the Heroku-provided URL in production
-let REDIS_URL = process.env.REDIS_URL || "redis://127.0.0.1:6379";
+let REDIS_URL = process.env.REDISCLOUD_URL || "redis://127.0.0.1:6379";
 
 // Spin up multiple processes to handle jobs to take advantage of more CPU cores
 // See: https://devcenter.heroku.com/articles/node-concurrency for more info
 let workers = process.env.WEB_CONCURRENCY || 2;
 
 // The maximum number of jobs each worker should process at once. This will need
-// to be tuned for your application. If each job is mostly waiting on network 
+// to be tuned for your application. If each job is mostly waiting on network
 // responses it can be much higher. If each job is CPU-intensive, it might need
 // to be much lower.
 let maxJobsPerWorker = 50;
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function start() {
   // Connect to the named work queue
-  let workQueue = new Queue('work', REDIS_URL);
-
+  // If you want to pass some "custom" Redis config
+  const workQueue = new Queue("kyc", {
+    redis: REDIS_URL,
+  });
   workQueue.process(maxJobsPerWorker, async (job) => {
     // This is an example job that just slowly reports on progress
     // while doing no work. Replace this with your own job logic.
@@ -29,13 +31,13 @@ function start() {
 
     // throw an error 5% of the time
     if (Math.random() < 0.05) {
-      throw new Error("This job failed!")
+      throw new Error("This job failed!");
     }
 
     while (progress < 100) {
       await sleep(50);
       progress += 1;
-      job.progress(progress)
+      job.progress(progress);
     }
 
     // A job can return values that will be stored in Redis as JSON
