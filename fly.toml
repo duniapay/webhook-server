@@ -1,0 +1,18 @@
+# fly.toml app configuration file generated for fiatconwebhook on 2023-05-21T11:23:47Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "fiatconwebhook"
+primary_region = "jnb"
+
+[env]
+  PORT = "8080"
+  WEBHOOK_SERVER_URL = "https://liquidity-dot-celo-mobile-alfajores.appspot.com/fiatconnect/webhook/dunia-payment"
+  WEBHOOK_SECRET = ""
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
